@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Home | Pokémon Website</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: white;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #222;
+      padding: 10px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .logo {
+      font-size: 22px;
+      font-weight: bold;
+      color: #fdd835;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      margin: 0 10px;
+    }
+
+    nav a:hover {
+      color: #fdd835;
+    }
+
+    .episodes-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 15px;
+      padding: 20px;
+    }
+
+    .episode-card {
+      background: #1c1c1c;
+      border-radius: 10px;
+      overflow: hidden;
+      text-align: center;
+      transition: transform 0.3s;
+    }
+
+    .episode-card:hover {
+      transform: scale(1.05);
+    }
+
+    .episode-card img {
+      width: 100%;
+      height: 240px;
+      object-fit: cover;
+    }
+
+    .episode-card p {
+      margin: 10px 0;
+      font-size: 14px;
+    }
+
+    .episode-card button {
+      background: #fdd835;
+      border: none;
+      padding: 8px 12px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .episode-card button:hover {
+      background: #ffeb3b;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <h1>POKÉMON WEBSITE</h1>
+      <a href="index.html" class="logo">
+    <img src="logo.png" alt="Pokémon Logo">
+      </a>
+    <nav>
+      <ul>
+        <li><a href="index.html" class="active">Home</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li><a href="login.html">Login</a></li>
+        <li><a href="register.html">Register</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <h2 style="padding: 20px;">Pokémon Episodes</h2>
+  <div class="episodes-container" id="episodes"></div>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <h2>Welcome to the Pokémon World!</h2>
+    <p>Watch and explore your favorite Pokémon episodes anytime, anywhere.</p>
+    <a href="episodes.html" class="btn">Start Watching</a>
+  </section>
+
+  <!-- Features -->
+  <section class="features">
+    <div class="feature-card">
+      <h3>⚡ Episodes</h3>
+      <p>Enjoy all Pokémon adventures in high quality, fully responsive.</p>
+    </div>
+    <div class="feature-card">
+      <h3>🔥 Easy Access</h3>
+      <p>Works on mobile and laptop — smooth, clean, and free to use.</p>
+    </div>
+    <div class="feature-card">
+      <h3>🌙 Dark/Light Mode</h3>
+      <p>Switch between dark and light themes for comfort viewing.</p>
+    </div>
+  </section>
+
+  <!-- Call to Action -->
+  <section class="cta">
+    <h2>Join the Adventure Today!</h2>
+    <a href="register.html" class="btn">Register Now</a>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p>&copy; 2025 Pokémon Website. All Rights Reserved.</p>
+  </footer>
+
+  <!-- JS -->
+  <script src="script.js"></script>
+  <script>
+    async function loadEpisodes() {
+      // 🔹 Placeholder until we connect API
+      const episodes = [
+        { id: 1, title: "Pokémon! I Choose You!", image: "https://i.imgur.com/9I6NRUm.jpg" },
+        { id: 2, title: "Pokémon Emergency!", image: "https://i.imgur.com/y3hXzK0.jpg" },
+        { id: 3, title: "Ash Catches a Pokémon", image: "https://i.imgur.com/HdHk9kF.jpg" }
+      ];
+
+      const container = document.getElementById("episodes");
+      container.innerHTML = "";
+
+      episodes.forEach(ep => {
+        const div = document.createElement("div");
+        div.className = "episode-card";
+        div.innerHTML = `
+          <img src="${ep.image}" alt="Episode ${ep.id}">
+          <p>Episode ${ep.id}: ${ep.title}</p>
+          <button onclick="playEpisode(${ep.id})">Play</button>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function playEpisode(id) {
+      window.location.href = `player.html?episode=${id}`;
+    }
+
+    loadEpisodes();
+    async function loadEpisodes() {
+    try {
+      const res = await fetch("/api/episodes");
+      const episodes = await res.json();
+      const list = document.getElementById("episode-list");
+      const player = document.getElementById("player");
+
+      episodes.forEach(ep => {
+        const div = document.createElement("div");
+        div.className = "episode";
+        div.textContent = ep.title;
+        div.onclick = () => {
+          if (Hls.isSupported() && ep.url.endsWith(".m3u8")) {
+            const hls = new Hls();
+            hls.loadSource(ep.url);
+            hls.attachMedia(player);
+          } else {
+            player.src = ep.url;
+          }
+          player.play();
+        };
+        list.appendChild(div);
+      });
+    } catch (err) {
+      console.error("Error loading episodes", err);
+      document.getElementById("episode-list").textContent = "Failed to load episodes.";
+    }
+  }
+  loadEpisodes();
+  </script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Watch Episode</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <a href="index.html" class="logo">
+      <img src="images/logo.png" alt="Pokémon Logo">
+    </a>
+  </header>
+
+  <section class="watch">
+    <h2 id="epTitle">Loading...</h2>
+    <video id="epVideo" controls width="100%" style="max-width:900px; border-radius:10px;">
+      <source id="videoSource" src="" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+  </section>
+
+  <script>
+    async function loadEpisode() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const id = parseInt(urlParams.get("id"));
+
+      const response = await fetch('episodes.json');
+      const episodes = await response.json();
+      const episode = episodes.find(e => e.id === id);
+
+      if (episode) {
+        document.getElementById('epTitle').textContent = episode.title;
+        document.getElementById('videoSource').src = episode.videoUrl;
+        document.getElementById('epVideo').load();
+      } else {
+        document.getElementById('epTitle').textContent = "Episode Not Found!";
+      }
+    }
+
+    loadEpisode();
+  </script>
+</body>
+</html>
