@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PokéPlayer - Episodes</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: white;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #222;
+      padding: 10px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .logo {
+      font-size: 22px;
+      font-weight: bold;
+      color: #fdd835;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      margin: 0 10px;
+    }
+
+    nav a:hover {
+      color: #fdd835;
+    }
+
+    h1 {
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    .episodes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 20px;
+      padding: 20px;
+    }
+
+    .episode-card {
+      background: #1c1c1c;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0px 0px 10px rgba(0,0,0,0.5);
+      transition: transform 0.2s ease;
+    }
+
+    .episode-card:hover {
+      transform: scale(1.05);
+    }
+
+    .episode-card img {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+    }
+
+    .episode-info {
+      padding: 10px;
+      text-align: center;
+    }
+
+    .episode-info h3 {
+      font-size: 16px;
+      margin: 10px 0;
+    }
+
+    .play-btn {
+      display: inline-block;
+      padding: 8px 15px;
+      background: #fdd835;
+      color: black;
+      border-radius: 5px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .play-btn:hover {
+      background: #ffeb3b;
+    }
+    :root { --bg:#111; --card:#1c1c1c; --ink:#fff; --brand:#fdd835; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: Arial, sans-serif; background:var(--bg); color:var(--ink); }
+    header { display:flex; justify-content:space-between; align-items:center; background:#222; padding:12px 20px; position:sticky; top:0; z-index:1000; }
+    .logo { font-size:22px; font-weight:700; color:var(--brand); }
+    nav a { color:#fff; text-decoration:none; margin:0 10px; font-size:15px; }
+    nav a:hover { color:var(--brand); }
+    h1 { text-align:center; margin:18px 0; }
+    .toolbar { max-width:1100px; margin:0 auto; padding:0 16px 8px; display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
+    .toolbar input { width:320px; max-width:100%; padding:10px 12px; border-radius:8px; border:1px solid #333; background:#181818; color:#fff; }
+    .episodes-grid { display:grid; grid-template-columns: repeat(auto-fill,minmax(200px,1fr)); gap:18px; padding:18px; max-width:1100px; margin:0 auto; }
+    .episode-card { background:var(--card); border-radius:12px; overflow:hidden; box-shadow:0 0 10px rgba(0,0,0,.45); transition:transform .2s ease, background .2s ease; }
+    .episode-card:hover { transform:translateY(-3px); background:#242424; }
+    .thumb { width:100%; height:140px; object-fit:cover; background:#000; display:block; }
+    .episode-info { padding:10px; text-align:center; }
+    .episode-info h3 { font-size:16px; margin:8px 0 10px; }
+    .play-btn { display:inline-block; padding:8px 14px; background:var(--brand); color:#111; border-radius:6px; text-decoration:none; font-weight:700; }
+    .play-btn:hover { filter:brightness(1.07); }
+    .status { text-align:center; opacity:.8; padding:8px 0 0; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">PokéPlayer</div>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="episodes.html">Episodes</a>
+      <a href="about.html">About</a>
+      <a href="contact.html">Contact</a>
+      <a href="login.html">Login</a>
+      <a href="register.html">Register</a>
+    </nav>
+  </header>
+
+  <h1>All Episodes</h1>
+  <div class="toolbar">
+    <input id="search" type="search" placeholder="Search episodes… (title or number)"/>
+    <div class="status" id="status">Loading episodes…</div>
+  </div>
+  
+  <div class="episode-card">
+  <a href="player.html?episode=1">Pokémon! I Choose You!</a>
+</div>
+<div class="episode-card">
+  <a href="player.html?episode=2">Pokémon Emergency!</a>
+</div>
+
+
+  <div class="episodes-grid" id="episodes-container">
+    <!-- Episodes will load here dynamically -->
+  </div>
+
+  <script>
+    const container = document.getElementById("episodes-container");
+
+    // Dummy fallback data (shows instantly while waiting for API)
+    const dummyEpisodes = [
+      { id: 1, title: "Pokémon! I Choose You!", poster: "https://via.placeholder.com/300x140?text=Ep+1" },
+      { id: 2, title: "Pokémon Emergency!", poster: "https://via.placeholder.com/300x140?text=Ep+2" },
+      { id: 3, title: "Ash Catches a Pokémon", poster: "https://via.placeholder.com/300x140?text=Ep+3" },
+      { id: 4, title: "Challenge of the Samurai", poster: "https://via.placeholder.com/300x140?text=Ep+4" },
+      { id: 5, title: "Showdown in Pewter City", poster: "https://via.placeholder.com/300x140?text=Ep+5" }
+    ];
+
+    // Function to render episode cards
+    function renderEpisodes(episodes) {
+      container.innerHTML = ""; // clear old content
+      episodes.forEach(ep => {
+        const card = document.createElement("div");
+        card.classList.add("episode-card");
+
+        card.innerHTML = `
+          <img src="${ep.poster}" alt="Episode ${ep.id}">
+          <div class="episode-info">
+            <h3>Episode ${ep.id}: ${ep.title}</h3>
+            <a class="play-btn" href="player.html?episode=${ep.id}">▶ Play</a>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    // 1. Render dummy episodes instantly
+    renderEpisodes(dummyEpisodes);
+
+    // 2. Try fetching real episodes.json (if available)
+    fetch("episodes.json")
+      .then(response => response.json())
+      .then(realEpisodes => {
+        if (realEpisodes && realEpisodes.length > 0) {
+          renderEpisodes(realEpisodes);
+        }
+      })
+      .catch(error => {
+        console.error("Error loading episodes.json:", error);
+        // keeps dummy data if fetch fails
+      });
+      
+  fetch("episodes.json")
+    .then(response => {
+      if (!response.ok) {
+        throw new Error("Network response was not ok " + response.status);
+      }
+      return response.json();
+    })
+    .then(episodes => {
+      const container = document.getElementById("episodes-list");
+      episodes.forEach(ep => {
+        const epDiv = document.createElement("div");
+        epDiv.className = "episode-card";
+        epDiv.innerHTML = `
+          <h3>Episode ${ep.id}: ${ep.title}</h3>
+          <a href="player.html?episode=${ep.id}">▶ Watch</a>
+        `;
+        container.appendChild(epDiv);
+      });
+    })
+    .catch(error => {
+      console.error("Error fetching episodes:", error);
+      document.getElementById("episodes-list").innerHTML =
+        "<p style='color:red;'>Error loading episodes!</p>";
+    });
+    const API = {
+      baseURL: "/api", // change to your backend/proxy origin
+      async searchEpisodes(query = "pokemon") {
+        // Try your API first
+        try {
+          const r = await fetch(`${this.baseURL}/episodes?query=${encodeURIComponent(query)}`);
+          if (!r.ok) throw new Error("Bad status " + r.status);
+          const data = await r.json();
+          if (data && Array.isArray(data.results) && data.results.length) return data.results;
+          throw new Error("Empty results");
+        } catch (e) {
+          // Fallback: local episodes.json (id, title, url, optional image)
+          const r2 = await fetch("episodes.json");
+          const arr = await r2.json();
+          // Normalize to adapter shape {id,title,number,image}
+          return arr.map((e, idx) => ({
+            id: e.id,
+            title: e.title,
+            number: e.id ?? (idx + 1),
+            image: e.image || `https://picsum.photos/seed/poke-${e.id}/640/360`
+          }));
+        }
+      }
+    };
+
+    const $episodes = document.getElementById("episodes");
+    const $status = document.getElementById("status");
+    const $search = document.getElementById("search");
+    let allEpisodes = [];
+
+    function render(list){
+      $episodes.innerHTML = "";
+      list.forEach(ep => {
+        const card = document.createElement("div");
+        card.className = "episode-card";
+        const imgSrc = ep.image || `https://picsum.photos/seed/poke-${ep.id}/640/360`;
+        card.innerHTML = `
+          <img class="thumb" src="${imgSrc}" alt="Episode ${ep.number}">
+          <div class="episode-info">
+            <h3>Episode ${ep.number}: ${ep.title}</h3>
+            <a class="play-btn" href="player.html?id=${encodeURIComponent(ep.id)}&n=${encodeURIComponent(ep.number)}">▶ Play</a>
+          </div>
+        `;
+        $episodes.appendChild(card);
+      });
+    }
+
+    function filter(query){
+      const q = query.trim().toLowerCase();
+      if (!q) return render(allEpisodes);
+      const filtered = allEpisodes.filter(e =>
+        String(e.number).includes(q) || (e.title || "").toLowerCase().includes(q)
+      );
+      render(filtered);
+    }
+
+    // init
+    (async () => {
+      try {
+        allEpisodes = await API.searchEpisodes("pokemon");
+        render(allEpisodes);
+        $status.textContent = `Loaded ${allEpisodes.length} episode(s).`;
+      } catch (err) {
+        console.error(err);
+        $status.textContent = "Failed to load episodes.";
+      }
+    })();
+
+    $search.addEventListener("input", (e)=> filter(e.target.value));
+  </script>
+</body>
+</html>
